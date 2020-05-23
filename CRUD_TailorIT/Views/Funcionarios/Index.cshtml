@@ -1,0 +1,73 @@
+﻿@*@model IEnumerable<CRUD_TailorIT.Models.Funcionario>*@
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/Content/MvcGrid/mvc-grid.css" rel="stylesheet">
+<script src="~/Scripts/MvcGrid/mvc-grid.js"></script>
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+
+
+@model IQueryable<CRUD_TailorIT.Models.Funcionario>
+
+@(Html.Grid(Model)
+            .Build(columns =>
+            {
+                columns.Add(model => model.NOME).Titled("Nome").Filterable(false);
+                columns.Add(model => model.DATANASC).Titled("Data de Nascimento").Formatted("{0:d}").Filterable(true);
+
+                columns.Add(model => DateTime.Now.Date.Subtract(model.DATANASC.Date).Days / 365).Titled("Idade").Filterable(false);
+                columns.Add(model => model.EMAIL).Titled("Email").Filterable(false);
+
+                columns.Add(model => model.SEXO).Titled("Sexo").Filterable(true); ;
+                columns.Add(model => model.HABILIDADES).Titled("Habilidade");
+
+                columns.Add(model => @Html.ActionLink("Editar", "Edit",  new { id = model.ID}));
+                columns.Add(model => @Html.ActionLink("Deletar", "Delete", new { id = model.ID}));
+                columns.Add(model => @Html.ActionLink("Details", "Details", new { id = model.ID }));
+
+
+            })
+    .Empty("No data found")
+    .Filterable()
+     .Pageable(pager =>
+     {
+         pager.PageSizes = new Dictionary<int, string> { { 0, "All" }, { 2, "2" }, { 10, "10" } };
+         pager.ShowPageSizes = true;
+         pager.PagesToDisplay = 3;
+         pager.CurrentPage = 1;
+         pager.RowsPerPage = 2;
+     })
+)
+
+
+@section Scripts{
+    <script>
+       
+        var CustomTextFilter = (function (base) {
+            MvcGridExtends(CustomTextFilter, base);
+
+            function CustomTextFilter(column) {
+                base.call(this, column);
+
+                this.methods = ['contains'];
+                column.grid.lang.custom = { contains: 'Contains' };
+            }
+
+            return CustomTextFilter;
+        })(MvcGridFilter);
+
+        new MvcGrid(document.querySelector('.mvc-grid'), {
+            filters: {
+                'custom': CustomTextFilter
+            }
+        });
+    </script>
+}
